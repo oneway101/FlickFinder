@@ -77,7 +77,14 @@ class ViewController: UIViewController {
         if isTextFieldValid(latitudeTextField, forRange: Constants.Flickr.SearchLatRange) && isTextFieldValid(longitudeTextField, forRange: Constants.Flickr.SearchLonRange) {
             photoTitleLabel.text = "Searching..."
             // TODO: Set necessary parameters!
-
+            let methodParameters = [
+                Constants.FlickrParameterKeys.SafeSearch: Constants.FlickrParameterValues.UseSafeSearch,
+                Constants.FlickrParameterKeys.BoundingBox: bboxString(),
+                Constants.FlickrParameterKeys.Extras: Constants.FlickrParameterValues.MediumURL,
+                Constants.FlickrParameterKeys.Method: Constants.FlickrParameterValues.GalleryPhotosMethod,
+                Constants.FlickrParameterKeys.Format: Constants.FlickrParameterValues.ResponseFormat,
+                Constants.FlickrParameterKeys.NoJSONCallback: Constants.FlickrParameterValues.DisableJSONCallback
+            ]
             displayImageFromFlickrBySearch(methodParameters as [String : AnyObject])
         }
         else {
@@ -86,6 +93,19 @@ class ViewController: UIViewController {
         }
     }
     
+    private func bboxString()->String{
+        //minLon, minLat, maxLon, maxLat
+        if let latitude = Double(latitudeTextField.text!), let longitude = Double(longitudeTextField.text!){
+            let minLon = max(longitude - Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLonRange.0)
+            let minLat = max(latitude - Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLatRange.0)
+            let maxLon = min(longitude + Constants.Flickr.SearchBBoxHalfHeight, Constants.Flickr.SearchLonRange.1)
+            let maxLat = min(latitude + Constants.Flickr.SearchBBoxHalfWidth, Constants.Flickr.SearchLatRange.1)
+            print("longitude:\(longitude),latitide:\(latitude),minLon:\(minLon),minLat:\(minLat),maxLon:\(maxLon),maxLat:\(maxLat)")
+            return "\(minLon),\(minLat),\(maxLon),\(maxLat)"
+        }else{
+            return "0,0,0,0"
+        }
+    }
     
     
     // MARK: Flickr API
